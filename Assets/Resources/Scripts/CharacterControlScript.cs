@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class CharacterControlScript : MonoBehaviour
 {
+    public PhotonView myPV;
+    public PhotonTransformView myPTV;
+
+    private Camera mainCam;
+
     public Animator animator;
     public CharacterController controller;
 
@@ -18,15 +23,27 @@ public class CharacterControlScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        if (myPV.isMine)
+        {
+            mainCam = Camera.main;
+            mainCam.GetComponent<CameraScript>().target = this.gameObject.transform;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!myPV.isMine)
+        {
+            return;
+        }
+
         MoveControl();
         RotationControl();
         controller.Move(moveDirection * Time.deltaTime);
+
+        Vector3 velocity = controller.velocity;
+        myPTV.SetSynchronizedValues(velocity, 0);
     }
 
     void MoveControl()
